@@ -6,10 +6,13 @@ package cmd
 
 import (
     "fmt"
+    "io/ioutil"
     "os"
+    "log"
 
     "github.com/spf13/cobra"
     "github.com/spf13/viper"
+    "gopkg.in/yaml.v3"
 )
 
 var cfgFile string
@@ -68,5 +71,26 @@ func initConfig() {
     // If a config file is found, read it in.
     if err := viper.ReadInConfig(); err == nil {
         fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+    }
+
+    if t := viper.GetString("data_source.type"); t == "yaml" {
+        setupYamlSource()
+    }
+}
+
+func setupYamlSource() {
+    // yaml source for data
+    path := viper.GetString("data_source.path")
+    input, err := ioutil.ReadFile(path)
+    if err != nil {
+        log.Fatal(err)
+    }
+    content := make(map[interface{}]interface{})
+    err = yaml.Unmarshal(input, &content)
+    if err != nil {
+        log.Fatal(err)
+    }
+    for k, v := range content {
+        fmt.Printf("%s, %s\n", k, v)
     }
 }
