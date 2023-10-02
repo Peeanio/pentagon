@@ -1,1 +1,4 @@
 server_port: ":9000"
+data_source:
+  type: "yaml"
+  path: "pentagon_source.yaml"
